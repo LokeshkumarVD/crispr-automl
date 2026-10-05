@@ -20,6 +20,25 @@ class OnTargetDataset(Dataset):
     def __getitem__(self, idx):
         return self.X_seq[idx], self.X_aux[idx], self.y[idx]
 
+class OffTargetDataset(Dataset):
+    """Wraps the off-target 8x23 encoded pairs + binary labels."""
+
+    def __init__(self, npz_path):
+        data = np.load(npz_path)
+        self.X = torch.tensor(data["X"], dtype=torch.float32)
+        self.y = torch.tensor(data["y"], dtype=torch.float32)
+
+    def __len__(self):
+        return len(self.y)
+
+    def __getitem__(self, idx):
+        return self.X[idx], self.y[idx]
+
+
+def get_offtarget_dataloader(npz_path, batch_size=32, shuffle=True):
+    dataset = OffTargetDataset(npz_path)
+    return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
+
 
 def get_dataloader(npz_path, split="train", batch_size=32, shuffle=True):
     dataset = OnTargetDataset(npz_path, split)

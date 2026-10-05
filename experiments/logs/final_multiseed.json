@@ -1,0 +1,98 @@
+{
+  "NAS-best": {
+    "architecture": [
+      {
+        "block_type": "cnn_large",
+        "channels": 64,
+        "dropout": 0.0
+      },
+      {
+        "block_type": "attention",
+        "channels": 16,
+        "dropout": 0.0,
+        "num_heads": 2
+      },
+      {
+        "block_type": "cnn_large",
+        "channels": 64,
+        "dropout": 0.1
+      },
+      {
+        "block_type": "cnn_small",
+        "channels": 32,
+        "dropout": 0.1
+      }
+    ],
+    "test_spearman_runs": [
+      0.8179027181347263,
+      0.8179286157733953,
+      0.8213519985902962
+    ],
+    "test_pearson_runs": [
+      0.8491595983505249,
+      0.8425772786140442,
+      0.8447249531745911
+    ],
+    "spearman_mean": 0.819061110832806,
+    "spearman_std": 0.0019840092514870674,
+    "pearson_mean": 0.8454872767130533,
+    "pearson_std": 0.0033567225326628005
+  },
+  "CNN-BiLSTM (baseline-equivalent)": {
+    "architecture": [
+      {
+        "block_type": "cnn_small",
+        "channels": 16,
+        "dropout": 0.1
+      },
+      {
+        "block_type": "bilstm",
+        "channels": 64,
+        "dropout": 0.0
+      }
+    ],
+    "test_spearman_runs": [
+      0.8079704083701359,
+      0.8074579297384747,
+      0.8070092888951975
+    ],
+    "test_pearson_runs": [
+      0.8360903859138489,
+      0.8378588557243347,
+      0.8340796828269958
+    ],
+    "spearman_mean": 0.8074792090012693,
+    "spearman_std": 0.0004809129511099361,
+    "pearson_mean": 0.8360096414883932,
+    "pearson_std": 0.0018908798728837308
+  },
+  "CNN-Transformer (baseline-equivalent)": {
+    "architecture": [
+      {
+        "block_type": "cnn_small",
+        "channels": 16,
+        "dropout": 0.1
+      },
+      {
+        "block_type": "attention",
+        "channels": 16,
+        "num_heads": 4,
+        "dropout": 0.1
+      }
+    ],
+    "test_spearman_runs": [
+      0.5156348120589516,
+      0.5070071516499199,
+      0.5174233950229967
+    ],
+    "test_pearson_runs": [
+      0.5468438863754272,
+      0.5378210544586182,
+      0.5465061068534851
+    ],
+    "spearman_mean": 0.5133551195772894,
+    "spearman_std": 0.005569764793956896,
+    "pearson_mean": 0.5437236825625101,
+    "pearson_std": 0.0051146151029185655
+  }
+}

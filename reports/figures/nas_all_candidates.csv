@@ -1,0 +1,13 @@
+candidate #,origin,architecture,num layers,params,fitness (val Spearman)
+10,mutated,cnn_large64 > attention16h2 > cnn_large64 > cnn_small32,4,16369,0.7115
+8,mutated,cnn_large64 > cnn_large16 > bilstm16 > cnn_small32,4,11121,0.6969
+6,random,cnn_large64 > cnn_small64 > bilstm16 > cnn_small32,4,21505,0.6944
+11,mutated,cnn_large64 > cnn_small64 > bilstm16 > cnn_small32,4,21505,0.6894
+12,mutated,attention16h2 > cnn_large16 > bilstm16 > cnn_large64,4,11713,0.6777
+9,mutated,cnn_large64 > attention32h4 > cnn_large16 > cnn_small32,4,13265,0.6681
+4,random,cnn_small16 > attention32h2 > cnn_large32 > cnn_small32,4,14641,0.6674
+3,random,cnn_large64 > cnn_small64 > attention16h8,3,16785,0.6338
+5,random,bilstm64 > cnn_small64 > cnn_small32 > bilstm64,4,47553,0.6319
+7,mutated,cnn_small16 > attention32h2 > cnn_large32 > bilstm64,4,29393,0.6119
+1,random,cnn_small64 > cnn_large16,2,6801,0.5607
+2,random,cnn_small64 > cnn_small16,2,4753,0.5149

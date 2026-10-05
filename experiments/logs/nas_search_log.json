@@ -1,0 +1,330 @@
+{
+  "history": [
+    {
+      "index": 1,
+      "origin": "random",
+      "architecture": [
+        {
+          "block_type": "cnn_small",
+          "channels": 64,
+          "dropout": 0.1
+        },
+        {
+          "block_type": "cnn_large",
+          "channels": 16,
+          "dropout": 0.0
+        }
+      ],
+      "fitness": 0.5607327108537272,
+      "params": 6801
+    },
+    {
+      "index": 2,
+      "origin": "random",
+      "architecture": [
+        {
+          "block_type": "cnn_small",
+          "channels": 64,
+          "dropout": 0.1
+        },
+        {
+          "block_type": "cnn_small",
+          "channels": 16,
+          "dropout": 0.0
+        }
+      ],
+      "fitness": 0.5149148290579865,
+      "params": 4753
+    },
+    {
+      "index": 3,
+      "origin": "random",
+      "architecture": [
+        {
+          "block_type": "cnn_large",
+          "channels": 64,
+          "dropout": 0.2
+        },
+        {
+          "block_type": "cnn_small",
+          "channels": 64,
+          "dropout": 0.0
+        },
+        {
+          "block_type": "attention",
+          "channels": 16,
+          "dropout": 0.1,
+          "num_heads": 8
+        }
+      ],
+      "fitness": 0.6338191476801514,
+      "params": 16785
+    },
+    {
+      "index": 4,
+      "origin": "random",
+      "architecture": [
+        {
+          "block_type": "cnn_small",
+          "channels": 16,
+          "dropout": 0.2
+        },
+        {
+          "block_type": "attention",
+          "channels": 32,
+          "dropout": 0.1,
+          "num_heads": 2
+        },
+        {
+          "block_type": "cnn_large",
+          "channels": 32,
+          "dropout": 0.0
+        },
+        {
+          "block_type": "cnn_small",
+          "channels": 32,
+          "dropout": 0.0
+        }
+      ],
+      "fitness": 0.6673983698501412,
+      "params": 14641
+    },
+    {
+      "index": 5,
+      "origin": "random",
+      "architecture": [
+        {
+          "block_type": "bilstm",
+          "channels": 64,
+          "dropout": 0.1
+        },
+        {
+          "block_type": "cnn_small",
+          "channels": 64,
+          "dropout": 0.1
+        },
+        {
+          "block_type": "cnn_small",
+          "channels": 32,
+          "dropout": 0.0
+        },
+        {
+          "block_type": "bilstm",
+          "channels": 64,
+          "dropout": 0.2
+        }
+      ],
+      "fitness": 0.6318998021858379,
+      "params": 47553
+    },
+    {
+      "index": 6,
+      "origin": "random",
+      "architecture": [
+        {
+          "block_type": "cnn_large",
+          "channels": 64,
+          "dropout": 0.0
+        },
+        {
+          "block_type": "cnn_small",
+          "channels": 64,
+          "dropout": 0.0
+        },
+        {
+          "block_type": "bilstm",
+          "channels": 16,
+          "dropout": 0.0
+        },
+        {
+          "block_type": "cnn_small",
+          "channels": 32,
+          "dropout": 0.1
+        }
+      ],
+      "fitness": 0.6944251741271124,
+      "params": 21505
+    },
+    {
+      "index": 7,
+      "origin": "mutated",
+      "architecture": [
+        {
+          "block_type": "cnn_small",
+          "channels": 16,
+          "dropout": 0.2
+        },
+        {
+          "block_type": "attention",
+          "channels": 32,
+          "dropout": 0.1,
+          "num_heads": 2
+        },
+        {
+          "block_type": "cnn_large",
+          "channels": 32,
+          "dropout": 0.0
+        },
+        {
+          "block_type": "bilstm",
+          "channels": 64,
+          "dropout": 0.2
+        }
+      ],
+      "fitness": 0.6118957851623291,
+      "params": 29393
+    },
+    {
+      "index": 8,
+      "origin": "mutated",
+      "architecture": [
+        {
+          "block_type": "cnn_large",
+          "channels": 64,
+          "dropout": 0.0
+        },
+        {
+          "block_type": "cnn_large",
+          "channels": 16,
+          "dropout": 0.1
+        },
+        {
+          "block_type": "bilstm",
+          "channels": 16,
+          "dropout": 0.0
+        },
+        {
+          "block_type": "cnn_small",
+          "channels": 32,
+          "dropout": 0.1
+        }
+      ],
+      "fitness": 0.6968623319882297,
+      "params": 11121
+    },
+    {
+      "index": 9,
+      "origin": "mutated",
+      "architecture": [
+        {
+          "block_type": "cnn_large",
+          "channels": 64,
+          "dropout": 0.2
+        },
+        {
+          "block_type": "attention",
+          "channels": 32,
+          "dropout": 0.2,
+          "num_heads": 4
+        },
+        {
+          "block_type": "cnn_large",
+          "channels": 16,
+          "dropout": 0.2
+        },
+        {
+          "block_type": "cnn_small",
+          "channels": 32,
+          "dropout": 0.1
+        }
+      ],
+      "fitness": 0.6681032957769013,
+      "params": 13265
+    },
+    {
+      "index": 10,
+      "origin": "mutated",
+      "architecture": [
+        {
+          "block_type": "cnn_large",
+          "channels": 64,
+          "dropout": 0.0
+        },
+        {
+          "block_type": "attention",
+          "channels": 16,
+          "dropout": 0.0,
+          "num_heads": 2
+        },
+        {
+          "block_type": "cnn_large",
+          "channels": 64,
+          "dropout": 0.1
+        },
+        {
+          "block_type": "cnn_small",
+          "channels": 32,
+          "dropout": 0.1
+        }
+      ],
+      "fitness": 0.7115373584179926,
+      "params": 16369
+    },
+    {
+      "index": 11,
+      "origin": "mutated",
+      "architecture": [
+        {
+          "block_type": "cnn_large",
+          "channels": 64,
+          "dropout": 0.0
+        },
+        {
+          "block_type": "cnn_small",
+          "channels": 64,
+          "dropout": 0.2
+        },
+        {
+          "block_type": "bilstm",
+          "channels": 16,
+          "dropout": 0.0
+        },
+        {
+          "block_type": "cnn_small",
+          "channels": 32,
+          "dropout": 0.1
+        }
+      ],
+      "fitness": 0.6893880493725739,
+      "params": 21505
+    },
+    {
+      "index": 12,
+      "origin": "mutated",
+      "architecture": [
+        {
+          "block_type": "attention",
+          "channels": 16,
+          "dropout": 0.1,
+          "num_heads": 2
+        },
+        {
+          "block_type": "cnn_large",
+          "channels": 16,
+          "dropout": 0.1
+        },
+        {
+          "block_type": "bilstm",
+          "channels": 16,
+          "dropout": 0.0
+        },
+        {
+          "block_type": "cnn_large",
+          "channels": 64,
+          "dropout": 0.0
+        }
+      ],
+      "fitness": 0.6777387731929974,
+      "params": 11713
+    }
+  ],
+  "reference": {
+    "CNN-BiLSTM (baseline-equivalent)": 0.4411869809585257,
+    "CNN-Transformer (baseline-equivalent)": 0.41316835585196515
+  },
+  "budget": {
+    "n_train": 8000,
+    "n_val": 2000,
+    "epochs": 2
+  }
+}
