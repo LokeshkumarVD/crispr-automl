@@ -6,15 +6,18 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
 
-from src.models.nas_model_multitask import MultiTaskNASModel
 from src.data.dataset import get_dataloader
 from src.eval.metrics import regression_metrics, classification_metrics
 
-ALPHA = 0.7  # weight on on-target loss; (1-ALPHA) on off-target loss
+
+ALPHA = 0.7  # weight on on-target loss; (1 - ALPHA) on off-target loss
+
+ONTARGET_NPZ = "data/processed/ontarget_splits.npz"
+OFFTARGET_NPZ = "data/processed/offtarget_crispr_splits.npz"
 
 
 def get_offtarget_loaders(batch_size=32):
-    data = np.load("data/processed/offtarget_crispr_splits.npz")
+    data = np.load(OFFTARGET_NPZ)
 
     def make(split, shuffle):
         ds = TensorDataset(
@@ -24,31 +27,99 @@ def get_offtarget_loaders(batch_size=32):
         return DataLoader(ds, batch_size=batch_size, shuffle=shuffle)
 
     pos_weight = torch.tensor(
-        [(data["y_train"] == 0).sum() / max((data["y_train"] == 1).sum(), 1)]
+        [(data["y_train"] == 0).sum() / max((data["y_train"] == 1).sum(), 1)],
+        dtype=torch.float32,
     )
+
     return make("train", True), make("val", False), make("test", False), pos_weight
 
 
-def train_multitask(model, epochs=5, batch_size=32, lr=1e-3, alpha=ALPHA):
-    ot_train = get_dataloader("data/processed/ontarget_splits.npz", "train", batch_size, shuffle=True)
-    ot_val = get_dataloader("data/processed/ontarget_splits.npz", "val", batch_size, shuffle=False)
-    off_train, off_val, off_test, pos_weight = get_offtarget_loaders(batch_size)
+def gradient_norm(model):
+    """L2 norm of all currently stored gradients (used only when diagnostics=True)."""
+    total_sq = 0.0
+    for parameter in model.parameters():
+        if parameter.grad is not None:
+            total_sq += parameter.grad.detach().pow(2).sum().item()
+    return total_sq ** 0.5
+
+
+def evaluate_split(model, split, batch_size=32):
+    """Evaluate a model on 'val' or 'test' for BOTH tasks.
+    Returns (ontarget_metrics, offtarget_metrics).
+    Calling this with split='test' should be done once, on the final chosen model."""
+    assert split in ("val", "test"), "split must be 'val' or 'test'"
+
+    ot_loader = get_dataloader(ONTARGET_NPZ, split, batch_size, shuffle=False)
+    _, off_val, off_test, _ = get_offtarget_loaders(batch_size)
+    off_loader = off_val if split == "val" else off_test
+
+    model.eval()
+    ot_preds, ot_trues = [], []
+    off_preds, off_trues = [], []
+
+    with torch.no_grad():
+        for x_seq, x_aux, y in ot_loader:
+            ot_preds.extend(model.forward_ontarget(x_seq, x_aux).numpy())
+            ot_trues.extend(y.numpy())
+
+        for x_pair, y in off_loader:
+            off_preds.extend(torch.sigmoid(model.forward_offtarget(x_pair)).numpy())
+            off_trues.extend(y.numpy())
+
+    return (
+        regression_metrics(ot_trues, ot_preds),
+        classification_metrics(off_trues, off_preds),
+    )
+
+
+def train_multitask(
+    model,
+    epochs=5,
+    batch_size=32,
+    lr=1e-3,
+    alpha=ALPHA,
+    diagnostics=False,
+    verbose=True,
+):
+    """Jointly train both tasks through the shared backbone.
+
+    Returns a dict with the FINAL-EPOCH VALIDATION metrics:
+        {"val_ot": {...spearman, pearson...}, "val_off": {...auprc...}}
+
+    This function never touches the test set. Use evaluate_split(model, "test")
+    once, after the final model has been chosen using validation scores.
+
+    diagnostics=True re-enables the per-task gradient-norm measurements
+    (extra backward passes, noticeably slower). They do not change the weight update.
+    """
+    ot_train = get_dataloader(ONTARGET_NPZ, "train", batch_size, shuffle=True)
+    off_train, _, _, pos_weight = get_offtarget_loaders(batch_size)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     mse_loss = nn.MSELoss()
     bce_loss = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
 
-    # Running average of each task's raw loss magnitude, used to normalize them
-    # onto a comparable scale before combining — prevents one task's larger loss
-    # values from dominating shared-backbone gradients regardless of alpha.
-    running_ot, running_off = 1.0, 1.0
+    # Running average of each task's loss magnitude, used to put both losses
+    # on a comparable scale before combining them.
+    running_ot = 1.0
+    running_off = 1.0
     momentum = 0.9
+
+    val_ot, val_off = None, None
 
     for epoch in range(epochs):
         model.train()
-        total_ot_loss, total_off_loss, n_steps = 0.0, 0.0, 0
 
+        total_ot_loss = 0.0
+        total_off_loss = 0.0
+        n_steps = 0
+        ot_gradients, off_gradients = [], []
+
+        # NOTE: itertools.cycle replays the same off-target batches (same order)
+        # when it restarts within an epoch. Kept unchanged so results stay
+        # comparable with earlier experiments.
         off_cycle = itertools.cycle(off_train)
+
         for (x_seq, x_aux, y_ot), (x_pair, y_off) in zip(ot_train, off_cycle):
             optimizer.zero_grad()
 
@@ -64,8 +135,18 @@ def train_multitask(model, epochs=5, batch_size=32, lr=1e-3, alpha=ALPHA):
             norm_loss_ot = loss_ot / (running_ot + 1e-8)
             norm_loss_off = loss_off / (running_off + 1e-8)
 
-            loss = alpha * norm_loss_ot + (1 - alpha) * norm_loss_off
+            if diagnostics:
+                optimizer.zero_grad()
+                norm_loss_ot.backward(retain_graph=True)
+                ot_gradients.append(gradient_norm(model))
 
+                optimizer.zero_grad()
+                norm_loss_off.backward(retain_graph=True)
+                off_gradients.append(gradient_norm(model))
+
+                optimizer.zero_grad()
+
+            loss = alpha * norm_loss_ot + (1 - alpha) * norm_loss_off
             loss.backward()
             optimizer.step()
 
@@ -73,54 +154,21 @@ def train_multitask(model, epochs=5, batch_size=32, lr=1e-3, alpha=ALPHA):
             total_off_loss += loss_off.item()
             n_steps += 1
 
-        model.eval()
-        ot_preds, ot_trues = [], []
-        off_preds, off_trues = [], []
-        with torch.no_grad():
-            for x_seq, x_aux, y in ot_val:
-                ot_preds.extend(model.forward_ontarget(x_seq, x_aux).numpy())
-                ot_trues.extend(y.numpy())
-            for x_pair, y in off_val:
-                off_preds.extend(torch.sigmoid(model.forward_offtarget(x_pair)).numpy())
-                off_trues.extend(y.numpy())
+        # Validation only (never test) after every epoch
+        val_ot, val_off = evaluate_split(model, "val", batch_size)
 
-        ot_metrics = regression_metrics(ot_trues, ot_preds)
-        off_metrics = classification_metrics(off_trues, off_preds)
+        if verbose:
+            line = (
+                f"  Epoch {epoch + 1}/{epochs} | "
+                f"OT loss {total_ot_loss / n_steps:.4f} | "
+                f"OFF loss {total_off_loss / n_steps:.4f} | "
+                f"val Spearman {val_ot['spearman']:.4f} | "
+                f"val AUPRC {val_off['auprc']:.4f}"
+            )
+            if diagnostics:
+                mean_ot = float(np.mean(ot_gradients))
+                mean_off = float(np.mean(off_gradients))
+                line += f" | grad OT {mean_ot:.3f} OFF {mean_off:.3f} ratio {mean_off / (mean_ot + 1e-8):.2f}x"
+            print(line)
 
-        print(
-            f"Epoch {epoch+1}/{epochs} — "
-            f"OnT loss: {total_ot_loss/n_steps:.4f}, OffT loss: {total_off_loss/n_steps:.4f} | "
-            f"val Spearman: {ot_metrics['spearman']:.4f}, val AUPRC: {off_metrics['auprc']:.4f}"
-        )
-
-    model.eval()
-    ot_test_loader = get_dataloader("data/processed/ontarget_splits.npz", "test", batch_size, shuffle=False)
-    ot_preds, ot_trues = [], []
-    off_preds, off_trues = [], []
-    with torch.no_grad():
-        for x_seq, x_aux, y in ot_test_loader:
-            ot_preds.extend(model.forward_ontarget(x_seq, x_aux).numpy())
-            ot_trues.extend(y.numpy())
-        for x_pair, y in off_test:
-            off_preds.extend(torch.sigmoid(model.forward_offtarget(x_pair)).numpy())
-            off_trues.extend(y.numpy())
-
-    ot_test_metrics = regression_metrics(ot_trues, ot_preds)
-    off_test_metrics = classification_metrics(off_trues, off_preds)
-    print(f"\nFINAL TEST — On-target Spearman: {ot_test_metrics['spearman']:.4f}, "
-          f"Pearson: {ot_test_metrics['pearson']:.4f} | Off-target AUPRC: {off_test_metrics['auprc']:.4f}")
-
-    return ot_test_metrics, off_test_metrics
-
-
-if __name__ == "__main__":
-    import random
-    from src.nas.search_space import sample_architecture
-
-    random.seed(14)   # ['cnn_small', 'bilstm', 'attention'] — tests attention under multi-task training
-    arch = sample_architecture()
-    print("Sampled architecture:", [l["block_type"] for l in arch])
-
-    torch.manual_seed(42)
-    model = MultiTaskNASModel(arch)
-    train_multitask(model, epochs=5, alpha=ALPHA)
+    return {"val_ot": val_ot, "val_off": val_off}

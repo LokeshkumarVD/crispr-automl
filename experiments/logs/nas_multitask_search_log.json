@@ -1,0 +1,201 @@
+{
+  "history": [
+    {
+      "index": 1,
+      "origin": "random",
+      "architecture": [
+        {
+          "block_type": "attention",
+          "channels": 32,
+          "dropout": 0.1,
+          "num_heads": 8
+        },
+        {
+          "block_type": "cnn_small",
+          "channels": 64,
+          "dropout": 0.2
+        },
+        {
+          "block_type": "cnn_small",
+          "channels": 32,
+          "dropout": 0.1
+        },
+        {
+          "block_type": "cnn_small",
+          "channels": 16,
+          "dropout": 0.1
+        },
+        {
+          "block_type": "attention",
+          "channels": 16,
+          "dropout": 0.1,
+          "num_heads": 2
+        }
+      ],
+      "fitness": 0.6237232932964414,
+      "ontarget_spearman": 0.2938622647775142,
+      "offtarget_auprc": 0.9535843218153687,
+      "params": 21378
+    },
+    {
+      "index": 2,
+      "origin": "random",
+      "architecture": [
+        {
+          "block_type": "cnn_large",
+          "channels": 16,
+          "dropout": 0.2
+        },
+        {
+          "block_type": "attention",
+          "channels": 64,
+          "dropout": 0.2,
+          "num_heads": 8
+        },
+        {
+          "block_type": "attention",
+          "channels": 32,
+          "dropout": 0.0,
+          "num_heads": 8
+        }
+      ],
+      "fitness": 0.47433262898073203,
+      "ontarget_spearman": 0.2042154240943186,
+      "offtarget_auprc": 0.7444498338671455,
+      "params": 27186
+    },
+    {
+      "index": 3,
+      "origin": "random",
+      "architecture": [
+        {
+          "block_type": "bilstm",
+          "channels": 64,
+          "dropout": 0.2
+        },
+        {
+          "block_type": "bilstm",
+          "channels": 64,
+          "dropout": 0.1
+        }
+      ],
+      "fitness": 0.8328300043938147,
+      "ontarget_spearman": 0.7580728058454748,
+      "offtarget_auprc": 0.9075872029421547,
+      "params": 40162
+    },
+    {
+      "index": 4,
+      "origin": "random",
+      "architecture": [
+        {
+          "block_type": "bilstm",
+          "channels": 16,
+          "dropout": 0.0
+        },
+        {
+          "block_type": "attention",
+          "channels": 16,
+          "dropout": 0.2,
+          "num_heads": 8
+        },
+        {
+          "block_type": "bilstm",
+          "channels": 32,
+          "dropout": 0.0
+        }
+      ],
+      "fitness": 0.8013944170880309,
+      "ontarget_spearman": 0.6479982432408927,
+      "offtarget_auprc": 0.9547905909351692,
+      "params": 9170
+    },
+    {
+      "index": 5,
+      "origin": "mutated",
+      "architecture": [
+        {
+          "block_type": "bilstm",
+          "channels": 16,
+          "dropout": 0.0
+        },
+        {
+          "block_type": "cnn_large",
+          "channels": 64,
+          "dropout": 0.2
+        },
+        {
+          "block_type": "bilstm",
+          "channels": 32,
+          "dropout": 0.0
+        }
+      ],
+      "fitness": 0.1623887912393593,
+      "ontarget_spearman": 0.28875699928832405,
+      "offtarget_auprc": 0.036020583190394515,
+      "params": 19234
+    },
+    {
+      "index": 6,
+      "origin": "mutated",
+      "architecture": [
+        {
+          "block_type": "bilstm",
+          "channels": 64,
+          "dropout": 0.2
+        },
+        {
+          "block_type": "bilstm",
+          "channels": 64,
+          "dropout": 0.1
+        }
+      ],
+      "fitness": 0.8328300043938147,
+      "ontarget_spearman": 0.7580728058454748,
+      "offtarget_auprc": 0.9075872029421547,
+      "params": 40162
+    },
+    {
+      "index": 7,
+      "origin": "mutated",
+      "architecture": [
+        {
+          "block_type": "bilstm",
+          "channels": 64,
+          "dropout": 0.2
+        },
+        {
+          "block_type": "bilstm",
+          "channels": 64,
+          "dropout": 0.1
+        }
+      ],
+      "fitness": 0.8328300043938147,
+      "ontarget_spearman": 0.7580728058454748,
+      "offtarget_auprc": 0.9075872029421547,
+      "params": 40162
+    },
+    {
+      "index": 8,
+      "origin": "mutated",
+      "architecture": [
+        {
+          "block_type": "bilstm",
+          "channels": 64,
+          "dropout": 0.2
+        },
+        {
+          "block_type": "attention",
+          "channels": 16,
+          "dropout": 0.1,
+          "num_heads": 8
+        }
+      ],
+      "fitness": 0.8605646004453699,
+      "ontarget_spearman": 0.7579955603377444,
+      "offtarget_auprc": 0.9631336405529953,
+      "params": 14162
+    }
+  ],
+  "alpha": 0.7
+}
